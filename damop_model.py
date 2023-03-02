@@ -273,6 +273,10 @@ def damop_model_UPDATED(params):
     rmax = params['R_max'] # maximum flow rate through the relief channel avoiding turbines (m^3 s^-1)
     sigma = params['sigma'] # efficiency of power generation (proportion)
 
+    # import the task flag and fig name
+    task = params['task']
+    fig_name = params['fig_name']
+
     # now we want to import the runoff data
     # first import the path for the netcdf point file
     path = params['path']
@@ -480,6 +484,37 @@ def damop_model_UPDATED(params):
         r[excessflow] = ft[excessflow]-wmax
     
     gout = -f
+
+    # plotting scripts
+
+    if task == 'Q1':
+        # create a dataframe to store the results for inflow, x, w, and r
+        df = pd.DataFrame({'inflow':inflow, 'x':x, 'w':w, 'r':r})
+        # set up the time variable for plotting
+        # note 6 hour intervals
+        time = pd.date_range(start=start_date, end=end_date, freq='6H')
+        # add time to the dataframe, excluding the last value
+        df['time'] = time[:-1]
+
+        # plot the results
+        # inflow, w and r are plotted on the same axis
+        # x is plotted on a separate axis
+        fig, ax1 = plt.subplots()
+        ax1.plot(df['time'], df['inflow'], color='blue', label='inflow (m3/s)')
+        ax1.plot(df['time'], df['w'], color='red', label='dam flow (m3/s)')
+        ax1.plot(df['time'], df['r'], color='green', label='relief flow (m3/s)')
+        ax1.set_xlabel('time')
+        ax1.set_ylabel('flow rate (m3/s)')
+        ax1.legend(loc='upper left')
+        ax2 = ax1.twinx()
+        ax2.plot(df['time'], df['x'], color='black', label='reservoir head (m)')
+        ax2.set_ylabel('reservoir head (m)')
+        ax2.legend(loc='upper right')
+        plt.title('Dam operation model results' + start_date + ' to ' + end_date)
+        plt.show()
+
+        # save the figure
+        fig.savefig(fig_name)
     
     return inflow, x, w, r, gout
 
