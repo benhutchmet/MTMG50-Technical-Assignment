@@ -22,11 +22,11 @@ from datetime import timedelta
 
 # import from dictionary
 from dictionaries import *
-# check that the params have loaded
 
+# check the data
 print(params_Q1a)
 
-# %%
+
 def damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma):
     '''
     Implementation of the dam operation model of Hirsch et al (2014).
@@ -245,7 +245,7 @@ def running_mean(xarr, nwin):
     
     return xfilt
 
-# %%
+
 
 # define an updated version of the damop model
 
@@ -281,23 +281,28 @@ def damop_model_UPDATED(params):
     # import runoff and time data
     runoffarr = f.variables['ro'][:,0,0]
     time = f.variables['time'][:]
+     # close the file
+    f.close()
+
     # convert the time to a datetime object
     start = datetime.datetime(1900, 1, 1, 0, 0, 0) # hours since 1900-01-01 00:00:00
     time = [start + datetime.timedelta(hours=t) for t in time]
 
+    # create a dataframe to store the data
+    df = pd.DataFrame({'time':time, 'runoff':runoffarr})
+
     # we want to constrain the model to only run for a certain period of time
     # first we need to import the start and end dates
+    # these should be in the format yyyy-mm-dd
     start_date = params['start_date']
     end_date = params['end_date']
-    # now we want to find the indices of the start and end dates
-    start_index = time.index(start_date)
-    end_index = time.index(end_date)
-    # now we want to constrain the model to only run for the specified period
-    runoffarr = runoffarr[start_index:end_index]
-    time = time[start_index:end_index]
+    # define the condition which constrains the data
+    condition = (df['time'].between(start_date, end_date))
+    constrained_df = df.loc[condition]
+    # now we want to set the constrained data as arrays
+    runoffarr = constrained_df['runoff'].to_numpy()
+    timearr = constrained_df['time'].to_numpy()
 
-    # close the file
-    f.close()
 
     # now we want to set the timestep for converting the runoff data below
     dt = params['dt'] # runoff accumulation interval per record (s)
@@ -478,10 +483,59 @@ def damop_model_UPDATED(params):
     
     return inflow, x, w, r, gout
 
-# %%
+
 
 # test the updated model
 
-inflow, x, w, r, gout = damop_model_UPDATED(params_taskA)
+inflow, x, w, r, gout = damop_model_UPDATED(params_Q1a)
 
 # %%
+
+# take a look at the results
+#print('infow = ',inflow)
+#print('x = ',x)
+#print('w = ',w)
+#print('r = ',r)
+print('gout = ',gout)
+
+# print the shapes of these
+print('inflow shape = ',inflow.shape)
+print('x shape = ',x.shape)
+print('w shape = ',w.shape)
+print('r shape = ',r.shape)
+print('gout shape = ',gout.shape)
+
+# create a dataframe to store the results for inflow, x, w, and r
+
+df = pd.DataFrame({'inflow':inflow, 'x':x, 'w':w, 'r':r})
+
+# print the statistics of the dataframe
+# for inflow first, we want to see the mean, standard deviation, and the minimum and maximum values
+df['inflow'].describe()
+df['x'].describe()
+df['w'].describe()
+df['r'].describe()
+
+# plot the results
+# set up an x-axis for this figure
+# which is the time between 2017-06-01 and 2017-09-30
+# split into 484 intervals
+# set the time between the start and end date with 6 hour intervals
+time = pd.date_range(start='2017-06-01', end='2017-09-30', freq='6H')
+# add the time to the dataframe, excluding the last value
+df['time'] = time[:-1]
+
+# now plot the results
+# with the time on the x-axis
+# and the inflow, x, w, and r on the y-axis
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(df['time'], df['inflow'], label='inflow')
+#ax.plot(df['time'], df['x'], label='x') # x has unfortunatel been modified
+ax.plot(df['time'], df['w'], label='w')
+ax.plot(df['time'], df['r'], label='r')
+ax.set_xlabel('time')
+ax.set_ylabel('flow rate')
+ax.legend()
+plt.show()
+
+df['x'].describe()
