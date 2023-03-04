@@ -574,3 +574,21 @@ ax.legend()
 plt.show()
 
 df['x'].describe()
+
+# %%
+
+# now we want to test the original damop_model function
+# to see how long it will take to run
+# given the same parameters as the updated function
+
+# first import the constants from the params_Q1a dictionary
+# and assign them to variables
+catcharea = params_Q1a['catchment_area'] # the area of the catchment (m^2)
+kappa = params_Q1a['kappa'] # proportionality constant between resv. volume and head
+hmax = params_Q1a['H_max'] # maximum safe water height in the reservoir (m)
+hmin = params_Q1a['H_min'] # minimum safe water height in the reservoir (m)
+wmax = params_Q1a['W_max'] # maximum safe flow rate through the dam (m^3 s^-1)
+wmin = params_Q1a['W_min'] # minimum flow rate through the dam (m^3 s^-1)
+rmax = params_Q1a['R_max'] # maximum flow rate through the relief channel avoiding turbines (m^3 s^-1)
+sigma = params_Q1a['sigma'] # efficiency of power generation (proportion)
+
