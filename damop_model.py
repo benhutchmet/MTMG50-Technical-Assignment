@@ -26,7 +26,7 @@ from dictionaries import *
 # check the data
 print(params_Q1a)
 
-# %%
+
 
 
 def damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma):
@@ -285,8 +285,11 @@ def damop_model_UPDATED(params):
     # now import the data
     f = Dataset(path, 'r')
     # import runoff and time data
-    runoffarr = f.variables['ro'][:,0,0]
-    time = f.variables['time'][:]
+    # this part was updated with the help of james to make//
+    # the model run faster lol
+    # for some reason netcdf file is in four hourly chunks?gi
+    runoffarr = f.variables['ro'][::4].flatten()
+    time = f.variables['time'][::4].flatten()
      # close the file
     f.close()
 
@@ -308,6 +311,8 @@ def damop_model_UPDATED(params):
     # now we want to set the constrained data as arrays
     runoffarr = constrained_df['runoff'].to_numpy()
     timearr = constrained_df['time'].to_numpy()
+
+    print(runoffarr)
 
 
     # now we want to set the timestep for converting the runoff data below
@@ -518,7 +523,7 @@ def dam_model(start_date, end_date, inflow, x, w, r, fig_name):
     plt.show()
 
     #save the figure
-    fig.savefig(fig_name)
+    fig.savefig(fig_name.png)
     
     return inflow, x, w, r, gout
 
@@ -526,7 +531,9 @@ def dam_model(start_date, end_date, inflow, x, w, r, fig_name):
 
 # test the updated model
 
-#inflow, x, w, r, gout = damop_model_UPDATED(params_Q1a)
+inflow, x, w, r, gout = damop_model_UPDATED(params_Q1a)
+
+#print(inflow)
 
 # %%
 
@@ -535,25 +542,25 @@ def dam_model(start_date, end_date, inflow, x, w, r, fig_name):
 #print('x = ',x)
 #print('w = ',w)
 #print('r = ',r)
-print('gout = ',gout)
+#print('gout = ',gout)
 
 # print the shapes of these
-print('inflow shape = ',inflow.shape)
-print('x shape = ',x.shape)
-print('w shape = ',w.shape)
-print('r shape = ',r.shape)
-print('gout shape = ',gout.shape)
+#print('inflow shape = ',inflow.shape)
+#print('x shape = ',x.shape)
+#print('w shape = ',w.shape)
+#print('r shape = ',r.shape)
+#print('gout shape = ',gout.shape)
 
 # create a dataframe to store the results for inflow, x, w, and r
 
-df = pd.DataFrame({'inflow':inflow, 'x':x, 'w':w, 'r':r})
+#df = pd.DataFrame({'inflow':inflow, 'x':x, 'w':w, 'r':r})
 
 # print the statistics of the dataframe
 # for inflow first, we want to see the mean, standard deviation, and the minimum and maximum values
-df['inflow'].describe()
-df['x'].describe()
-df['w'].describe()
-df['r'].describe()
+#df['inflow'].describe()
+#df['x'].describe()
+#df['w'].describe()
+#df['r'].describe()
 
 # plot the results
 # set up an x-axis for this figure
@@ -622,17 +629,29 @@ end_date = params_Q1a['end_date']
 # define the condition which constrains the data
 condition = (df['time'].between(start_date, end_date))
 constrained_df = df.loc[condition]
+
+constrained_df
+
 # now we want to set the constrained data as arrays
 runoffarr = constrained_df['runoff'].to_numpy()
 timearr = constrained_df['time'].to_numpy()
+
+# print the mean of the runoff arr
+print(np.shape(runoffarr))
+
+print(time)
 
 # now we want to set the timestep for converting the runoff data below
 dt = params_Q1a['dt'] # runoff accumulation interval per record (s)
 
 
+print(dt)
 
+#damop_model()
 
 # run the original damop model
-inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+#inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
 
 # %%
+
+print(params_Q1a)
