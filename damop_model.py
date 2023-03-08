@@ -491,8 +491,8 @@ def damop_model_UPDATED(params):
     
     gout = -f
 
-    # set up the optional plotting scripts
-    if task == 'Q1':
+    # set up the optional plotting scripts if task = Q1 or Q2
+    if task == 'Q1' or task == 'Q2':
         dam_model(start_date, end_date, inflow, x, w, r, gout, fig_name)
 
     # plotting scripts
@@ -509,7 +509,7 @@ def dam_model(start_date, end_date, inflow, x, w, r, gout, fig_name):
     print(df.describe())
 
     #add time to the dataframe, excluding the last value
-    df['time'] = time
+    df['time'] = time[:-1]
 
     #plot the results
     #inflow, w and r are plotted on the same axis
@@ -579,6 +579,17 @@ def dam_model(start_date, end_date, inflow, x, w, r, gout, fig_name):
 #damop_model_UPDATED(params_Q1_2018_3months)
 
 # now for two months in 2018
-damop_model_UPDATED(params_Q1_2018_1month)
+#damop_model_UPDATED(params_Q1_2018_1month)
+
+# test that the Q2 varaibles are correct
+print(params_Q2_small_range)
+print(params_Q2_large_range)
+
+# run the damop model for low tau in q2
+#amop_model_UPDATED(params_Q2_high_tau)
+
+# run the damop model for small range
+damop_model_UPDATED(params_Q2_small_range)
+damop_model_UPDATED(params_Q2_large_range)
 
 # %%
