@@ -27,3 +27,12 @@ cdo daymean -mergetime -select,name=ro *CF.2019*.nc japan_ECMF_CF.20190603-20190
 
 # select the lon lat box and compute a mean from this
 cdo fldmean -sellonlatbox,136.002,137.002,35.167,36.167 japan_ECMF_CF.20170601-20190913.nc outfile.nc
+
+# combine all the PF data into one file
+cdo mergetime -select,name=ro *PF.*.nc japan_ECMF_PF.2017-2019.nc
+
+# regridding ERA5 data to the same grid as the ECMWF S2S data
+cdo remapbil,japan_ECMF_PF.20190627.nc "/home/users/benhutch/MTMG50/MTMG50-Technical-Assignment/japan_ERA5land_20170601-20190801.nc" "/home/users/benhutch/MTMG50/S2S/ecmwf/japan_ERA5land_20170601-20190801_coarse.nc"
+
+# subset the coasre ERA5 data to the same domain as the ECMWF S2S data
+cdo sellonlatbox,135,137,34,36 japan_ERA5land_20170601-20190801_coarse.nc japan_ERA5land_20170601-20190801_coarse_subset.nc
