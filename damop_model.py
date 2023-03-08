@@ -573,6 +573,12 @@ def dam_model(start_date, end_date, inflow, x, w, r, gout, fig_name):
 #damop_model_UPDATED(params_Q1_2018_3months)
 
 
-print(params_Q1_2018_3months)
+#print(params_Q1_2018_3months)
+
+# test again
+#damop_model_UPDATED(params_Q1_2018_3months)
+
+# now for two months in 2018
+damop_model_UPDATED(params_Q1_2018_1month)
 
 # %%
