@@ -21,7 +21,7 @@ params_Q1a = {'H_dam': 161, # dam height in m
                 'start_date': '2017-06-01', # start date for period
                 'end_date': '2017-09-30', # end date for period
                 'dt': 86400, # time step in seconds for conversion of runoff data
-                'path': r'C:\Users\Ben Hutchins\OneDrive - University of Reading\Documents\GitHub\MTMG50-Technical-Assignment\japan_ERA5land_20170601-20190801_tokuyama.nc', # path to the netCDF file
+                'path': r'C:\Users\Ben Hutchins\OneDrive - University of Reading\Documents\GitHub\MTMG50-Technical-Assignment\tokuyama_daymean.nc', # path to the netCDF file
                 'task': 'Q1', # task flag
                 'fig_name': '2017-06-01-2017-09-30_optimization.png' # name of the figure to be saved
                 }
@@ -40,12 +40,12 @@ params_Q1_2017_1month = params_Q1a | {'start_date': '2017-07-01', 'end_date': '2
 params_Q1_2018_4months = params_Q1a | {'start_date': '2018-06-01', 'end_date': '2018-09-30', 'fig_name': '2018-06-01-2018-09-30_optimization.png'}
 # june to end of sept 2018
 
-params_Q1_2018_3months = params_Q1a | {'start_date': '2018-07-01', 'fig_name': '2018-07-01-2018-09-30_optimization.png'}
+params_Q1_2018_3months = params_Q1_2018_4months | {'start_date': '2018-07-01', 'fig_name': '2018-07-01-2018-09-30_optimization.png'}
 # july august sept 2018
 
-params_Q1_2018_2months = params_Q1a | {'start_date': '2018-07-01', 'end_date': '2018-08-30', 'fig_name': '2018-07-01-2018-08-30_optimization.png'} # july august 2018
+params_Q1_2018_2months = params_Q1_2018_4months | {'start_date': '2018-07-01', 'end_date': '2018-08-30', 'fig_name': '2018-07-01-2018-08-30_optimization.png'} # july august 2018
 
-params_Q1_2018_1month = params_Q1a | {'start_date': '2018-07-01', 'end_date': '2018-07-30', 'fig_name': '2018-07-01-2018-07-30_optimization.png'} # july 2018
+params_Q1_2018_1month = params_Q1_2018_4months | {'start_date': '2018-07-01', 'end_date': '2018-07-30', 'fig_name': '2018-07-01-2018-07-30_optimization.png'} # july 2018
 
 
 

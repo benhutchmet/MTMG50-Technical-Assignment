@@ -244,3 +244,9 @@ if __name__ == '__main__':
     #
     dayarr, timarr, runoffarr = extract_series(fpath, fstem, lonpick, latpick, dstart, dend)
     
+# use the plot_series function to plot a time series of the runoff data
+# using out tokuyama data
+# from the tokuyama data, we want to extract the time period in datetime format
+# and the runoff data in m
+
+timarr = 

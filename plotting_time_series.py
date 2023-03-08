@@ -9,6 +9,11 @@ import datetime
 from datetime import date
 from datetime import timedelta
 
+from dictionaries import *
+
+# check the data
+print(params_Q1a)
+
 
 # import the data
 f = Dataset(r'C:\Users\Ben Hutchins\OneDrive - University of Reading\Documents\GitHub\MTMG50-Technical-Assignment\japan_ERA5land_20170601-20190801_tokuyama.nc', 'r')
@@ -62,6 +67,6 @@ def plot_data(start, end):
 plot_data('2017-06-01', '2017-09-30')
 
 # test the function with the 2018 data
-plot_data('2018-06-01', '2018-09-30')
+#plot_data('2018-06-01', '2018-09-30')
 
 # %%

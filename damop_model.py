@@ -24,7 +24,7 @@ from datetime import timedelta
 from dictionaries import *
 
 # check the data
-print(params_Q1a)
+#print(params_Q1a)
 
 
 
@@ -288,8 +288,9 @@ def damop_model_UPDATED(params):
     # this part was updated with the help of james to make//
     # the model run faster lol
     # for some reason netcdf file is in four hourly chunks?gi
-    runoffarr = f.variables['ro'][::4].flatten()
-    time = f.variables['time'][::4].flatten()
+    # set the runoffarr and time arrays
+    runoffarr = f.variables['ro'][:,0,0]
+    time = f.variables['time'][:]
      # close the file
     f.close()
 
@@ -305,15 +306,13 @@ def damop_model_UPDATED(params):
     # these should be in the format yyyy-mm-dd
     start_date = params['start_date']
     end_date = params['end_date']
+
     # define the condition which constrains the data
     condition = (df['time'].between(start_date, end_date))
     constrained_df = df.loc[condition]
     # now we want to set the constrained data as arrays
     runoffarr = constrained_df['runoff'].to_numpy()
     timearr = constrained_df['time'].to_numpy()
-
-    print(runoffarr)
-
 
     # now we want to set the timestep for converting the runoff data below
     dt = params['dt'] # runoff accumulation interval per record (s)
@@ -492,166 +491,88 @@ def damop_model_UPDATED(params):
     
     gout = -f
 
+    # set up the optional plotting scripts
+    if task == 'Q1':
+        dam_model(start_date, end_date, inflow, x, w, r, gout, fig_name)
+
     # plotting scripts
 
-def dam_model(start_date, end_date, inflow, x, w, r, fig_name):
+def dam_model(start_date, end_date, inflow, x, w, r, gout, fig_name):
     """Run the dam model and plot the results
     """
     #create a dataframe to store the results for inflow, x, w, and r
     df = pd.DataFrame({'inflow':inflow, 'x':x, 'w':w, 'r':r})
-    #set up the time variable for plotting
-    #note 6 hour intervals
-    time = pd.date_range(start=start_date, end=end_date, freq='6H')
+    #set up the time variable for plotting with daily intervals
+    time = pd.date_range(start_date, end_date, freq='D')
+
+    # print the characteristics of the dataframe
+    print(df.describe())
+
     #add time to the dataframe, excluding the last value
-    df['time'] = time[:-1]
+    df['time'] = time
 
     #plot the results
     #inflow, w and r are plotted on the same axis
     #x is plotted on a separate axis
     fig, ax1 = plt.subplots()
-    ax1.plot(df['time'], df['inflow'], color='blue', label='inflow (m3/s)')
-    ax1.plot(df['time'], df['w'], color='red', label='dam flow (m3/s)')
-    ax1.plot(df['time'], df['r'], color='green', label='relief flow (m3/s)')
+    # flow rate in m^3/s
+    ax1.plot(df['time'], df['inflow'], color='blue', label = 'inflow (m' + r'$^3$' + 's' + r'$^{-1}$' + ')')
+    ax1.plot(df['time'], df['w'], color='red', label='dam flow (m' + r'$^3$' + 's' + r'$^{-1}$' + ')' )
+    ax1.plot(df['time'], df['r'], color='green', label='relief flow (m' + r'$^3$' + 's' + r'$^{-1}$' + ')')
     ax1.set_xlabel('time')
-    ax1.set_ylabel('flow rate (m3/s)')
-    ax1.legend(loc='upper left')
+    ax1.set_ylabel('flow rate (m' + r'$^3$' + 's' + r'$^{-1}$' + ')')
     ax2 = ax1.twinx()
-    ax2.plot(df['time'], df['x'], color='black', label='reservoir head (m)')
+    # set the strings on the x axis to curve
+    for label in ax1.get_xticklabels():
+        label.set_rotation(30)
+        label.set_horizontalalignment('right')
+    # set the opacity of the reservoir head plot to 0.5
+    ax2.plot(df['time'], df['x'], color='black', label='reservoir head (m)', linestyle='--', alpha=0.5)
     ax2.set_ylabel('reservoir head (m)')
+    ax1.legend(loc='upper left')
     ax2.legend(loc='upper right')
-    plt.title('Dam operation model results' + start_date + ' to ' + end_date)
+    # print the value of gout to 3 significant figures in the top right of the plot in a box
+    plt.text(0.95, 0.88, 'gout = ' + str(round(gout, 3)), horizontalalignment='right', verticalalignment='top', transform=ax1.transAxes, bbox=dict(facecolor='white', alpha=0.5))
+    plt.title('Dam operation model results from ' + start_date + ' to ' + end_date)
     plt.show()
 
-    #save the figure
-    fig.savefig(fig_name.png)
+    #save the figure as fig_name + '.png' in the plots folder
+    fig.savefig('plots/' + fig_name + '.png')
     
     return inflow, x, w, r, gout
 
 
 
 # test the updated model
+#damop_model_UPDATED(params_Q1a)
 
-inflow, x, w, r, gout = damop_model_UPDATED(params_Q1a)
+# test with the next dictionary for 3 months
+#damop_model_UPDATED(params_Q1_2017_2months)
 
-#print(inflow)
+# test with the two month dictionary
+#damop_model_UPDATED(params_Q1_2017_2months)
 
-# %%
+# test with the one month dictionary for 2017
+#damop_model_UPDATED(params_Q1_2017_1month)
 
-# take a look at the results
-#print('infow = ',inflow)
-#print('x = ',x)
-#print('w = ',w)
-#print('r = ',r)
-#print('gout = ',gout)
+# test with the four month dictionary for 2018
+#damop_model_UPDATED(params_Q1_2018_4months)
 
-# print the shapes of these
-#print('inflow shape = ',inflow.shape)
-#print('x shape = ',x.shape)
-#print('w shape = ',w.shape)
-#print('r shape = ',r.shape)
-#print('gout shape = ',gout.shape)
+#print(params_Q1_2018_4months)
 
-# create a dataframe to store the results for inflow, x, w, and r
+# test again
+#damop_model_UPDATED(params_Q1_2018_4months)
 
-#df = pd.DataFrame({'inflow':inflow, 'x':x, 'w':w, 'r':r})
+# check that the data has loaded correctly
+#print(params_Q1_2018_4months)
 
-# print the statistics of the dataframe
-# for inflow first, we want to see the mean, standard deviation, and the minimum and maximum values
-#df['inflow'].describe()
-#df['x'].describe()
-#df['w'].describe()
-#df['r'].describe()
+# now run for three months in 2018
+#damop_model_UPDATED(params_Q1_2018_3months)
 
-# plot the results
-# set up an x-axis for this figure
-# which is the time between 2017-06-01 and 2017-09-30
-# split into 484 intervals
-# set the time between the start and end date with 6 hour intervals
-time = pd.date_range(start='2017-06-01', end='2017-09-30', freq='6H')
-# add the time to the dataframe, excluding the last value
-df['time'] = time[:-1]
+# test again
+#damop_model_UPDATED(params_Q1_2018_3months)
 
-# now plot the results
-# with the time on the x-axis
-# and the inflow, x, w, and r on the y-axis
-fig, ax = plt.subplots(figsize=(10, 6))
-ax.plot(df['time'], df['inflow'], label='inflow')
-#ax.plot(df['time'], df['x'], label='x') # x has unfortunatel been modified
-ax.plot(df['time'], df['w'], label='w')
-ax.plot(df['time'], df['r'], label='r')
-ax.set_xlabel('time')
-ax.set_ylabel('flow rate')
-ax.legend()
-plt.show()
 
-df['x'].describe()
+print(params_Q1_2018_3months)
 
 # %%
-
-# now we want to test the original damop_model function
-# to see how long it will take to run
-# given the same parameters as the updated function
-
-# first import the constants from the params_Q1a dictionary
-# and assign them to variables
-catcharea = params_Q1a['catchment_area'] # the area of the catchment (m^2)
-kappa = params_Q1a['kappa'] # proportionality constant between resv. volume and head
-hmax = params_Q1a['H_max'] # maximum safe water height in the reservoir (m)
-hmin = params_Q1a['H_min'] # minimum safe water height in the reservoir (m)
-wmax = params_Q1a['W_max'] # maximum safe flow rate through the dam (m^3 s^-1)
-wmin = params_Q1a['W_min'] # minimum flow rate through the dam (m^3 s^-1)
-rmax = params_Q1a['R_max'] # maximum flow rate through the relief channel avoiding turbines (m^3 s^-1)
-sigma = params_Q1a['sigma'] # efficiency of power generation (proportion)
-
-# now we want to import the runoff data
-# first import the path for the netcdf point file
-path = params_Q1a['path']
-# now import the data
-f = Dataset(path, 'r')
-# import runoff and time data
-runoffarr = f.variables['ro'][:,0,0]
-time = f.variables['time'][:]
-# close the file
-f.close()
-
-# convert the time to a datetime object
-start = datetime.datetime(1900, 1, 1, 0, 0, 0) # hours since 1900-01-01 00:00:00
-time = [start + datetime.timedelta(hours=t) for t in time]
-
-# create a dataframe to store the data
-df = pd.DataFrame({'time':time, 'runoff':runoffarr})
-
-# we want to constrain the model to only run for a certain period of time
-# first we need to import the start and end dates
-# these should be in the format yyyy-mm-dd
-start_date = params_Q1a['start_date']
-end_date = params_Q1a['end_date']
-# define the condition which constrains the data
-condition = (df['time'].between(start_date, end_date))
-constrained_df = df.loc[condition]
-
-constrained_df
-
-# now we want to set the constrained data as arrays
-runoffarr = constrained_df['runoff'].to_numpy()
-timearr = constrained_df['time'].to_numpy()
-
-# print the mean of the runoff arr
-print(np.shape(runoffarr))
-
-print(time)
-
-# now we want to set the timestep for converting the runoff data below
-dt = params_Q1a['dt'] # runoff accumulation interval per record (s)
-
-
-print(dt)
-
-#damop_model()
-
-# run the original damop model
-#inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
-
-# %%
-
-print(params_Q1a)
