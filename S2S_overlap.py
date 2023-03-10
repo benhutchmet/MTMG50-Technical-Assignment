@@ -156,8 +156,6 @@ plt.show()
 # save the plot in the plots folder
 plt.savefig(r'plots\runoff_scatter_ERA5vsECMWFS2S_coarseERA5.png', dpi=300)
 
-# %%
-
 # we want to perform a statistical calibration of the data
 # first we must calculate the mean and standard deviation of the S2S data and the ERA5 data
 # we will use the numpy library for this
@@ -182,7 +180,7 @@ c1 = era5_std/s2s_std
 # first we need to create a new variable in the data
 data_2017['ro_calibrated'] = data_2017['ro'].values.flatten() * c1
 
-print(c1)
+print('c1 is:',c1)
 print(c0)
 
 # print ro and ro_calibrated to check that the calibration has worked
@@ -223,12 +221,16 @@ plt.figure(figsize=(6,6))
 plt.scatter(era5_2017['ro'].values.flatten(), data_2017['ro'].values.flatten(), color='blue', label='uncalibrated')
 plt.scatter(era5_2017['ro'].values.flatten(), data_2017['ro_calibrated'].values.flatten(), color='red', label='S2S calibrated')
 # plot the 1:1 line
-plt.plot([0, 0.01], [0, 0.01], color='black', linestyle='--')
+plt.plot([0, 0.02], [0, 0.02], color='black', linestyle='--')
 # set the axis labels
 plt.xlabel('ERA5 runoff (mm/day)')
 plt.ylabel('S2S runoff (mm/day)')
+# set x and y limits
+plt.xlim(0, 0.02)
+plt.ylim(0, 0.02)
 # show the plot
 plt.show()
+
 # save the plot in the plots folder
 plt.savefig(r'plots\runoff_scatter_ERA5vsECMWFS2S_calibrated.png', dpi=300)
 

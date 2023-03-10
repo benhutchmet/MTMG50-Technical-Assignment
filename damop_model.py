@@ -582,14 +582,103 @@ def dam_model(start_date, end_date, inflow, x, w, r, gout, fig_name):
 #damop_model_UPDATED(params_Q1_2018_1month)
 
 # test that the Q2 varaibles are correct
-print(params_Q2_small_range)
-print(params_Q2_large_range)
+# print(params_Q2_small_range)
+# print(params_Q2_large_range)
 
-# run the damop model for low tau in q2
-#amop_model_UPDATED(params_Q2_high_tau)
+# # run the damop model for low tau in q2
+# #amop_model_UPDATED(params_Q2_high_tau)
 
-# run the damop model for small range
-damop_model_UPDATED(params_Q2_small_range)
-damop_model_UPDATED(params_Q2_large_range)
+# # run the damop model for small range
+# damop_model_UPDATED(params_Q2_small_range)
+# damop_model_UPDATED(params_Q2_large_range)
+
+
+# we want to run the damop model using the calibrated //
+# S2S forecasting data for the 20180621 forecast
+# this contains 50 ensemble members
+# we will use the data from the 20180621 folder
+# where the files are named as follows:
+# 20180621\japan_ECMF_PF.20180621.1.diff.converted-units.study_area.mean.calibrated.nc
+# 20180621\japan_ECMF_PF.20180621.2.diff.converted-units.study_area.mean.calibrated.nc
+# 20180621\japan_ECMF_PF.20180621.3.diff.converted-units.study_area.mean.calibrated.nc
+# etc. up to 50
+# for this we want to use the original damop_model function
+# which takes runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma as inputs
+# and returns inflow, x, w, r, gout as outputs
+
+# first we need to load the data and extract the runoffarr
+# we will use xarray and dask to do this
+import xarray as xr
+import dask.array as da
+
+# we want to load the data from the 20180621 folder
+# so we will have to loop through the files
+# and extract the runoffarr from each file
+# and then concatenate them together
+# we will use the glob module to get the list of files
+import glob
+
+# get the list of files
+# this will return a list of strings
+# each string is the full path to a file
+# we want to get the files from the 20180621 folder
+# so we will use the os module to get the current working directory
+# and then add the 20180621 folder to the end
+import os
+
+# get the current working directory
+cwd = os.getcwd()
+# add the 20180621 folder to the end
+# this will be the path to the 20180621 folder
+path = cwd + '\\20180621\\'
+
+# get the list of files
+# this will return a list of strings
+# each string is the full path to a file
+# we want to get the files from the 20180621 folder
+# so we will use the os module to get the current working directory
+# and then add the 20180621 folder to the end
+# we will use the glob module to get the list of files
+# we want to get all the files that end in .nc
+# so we will use the wildcard * to get all the files
+# and then add .nc to the end
+# this will return a list of strings
+# each string is the full path to a file
+list = glob.glob(path + '*.nc')
+
+# we want to load the data from the 20180621 folder
+# so we will have to loop through the files
+# and extract the runoffarr from each file
+# and then concatenate them together
+# we will loop through the list of files
+# and load each file
+# we will use the xarray module to load the data
+# we will use the dask module to load the data
+# we will use the da.concatenate function to concatenate the arrays
+# we will use the da.stack function to stack the arrays
+# we will use the da.mean function to calculate the mean
+# we will use the da.std function to calculate the standard deviation
+# we will use the da.percentile function to calculate the 5th and 95th percentiles
+# we will use the da.percentile function to calculate the 5th and 95th percentiles
+
+for file in list:
+    # load the data
+    ds = xr.open_dataset(file, chunks={'time': 1})
+    
+    # extract the runoffarr
+    runoffarr = ds['ro'].values
+    
+    # concatenate the arrays
+    runoffarr = da.concatenate(runoffarr, axis=0)
+    
+    # stack the arrays
+    runoffarr = da.stack(runoffarr, axis=0)
+
+
+# check that the data has loaded correctly
+print(runoffarr)
+
+# print the values
+print(runoffarr.values)
 
 # %%
