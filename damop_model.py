@@ -606,6 +606,8 @@ def dam_model(start_date, end_date, inflow, x, w, r, gout, fig_name):
 # which takes runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma as inputs
 # and returns inflow, x, w, r, gout as outputs
 
+# %%
+
 # first we need to load the data and extract the runoffarr
 # we will use xarray and dask to do this
 import xarray as xr
@@ -631,6 +633,7 @@ cwd = os.getcwd()
 # add the 20180621 folder to the end
 # this will be the path to the 20180621 folder
 path = cwd + '\\20180621\\'
+print(path)
 
 # get the list of files
 # this will return a list of strings
@@ -645,40 +648,148 @@ path = cwd + '\\20180621\\'
 # this will return a list of strings
 # each string is the full path to a file
 list = glob.glob(path + '*.nc')
+print(list)
 
 # we want to load the data from the 20180621 folder
 # so we will have to loop through the files
-# and extract the runoffarr from each file
-# and then concatenate them together
+# 
+
+# create an empty array to store the data for all 50 ensemble members
+# the runoff data has dimensions of: (46, 1, 1, 1)
+# we want to create an array with dimensions of: (50, 46, 1, 1, 1)
+# which stores the ensemble member number and time
+# we will use the dask module to create the array
+
+# create an empty array to store the data for all 50 ensemble members
+runoffarr_all_members = da.zeros((50, 46, 1, 1, 1))
+
 # we will loop through the list of files
 # and load each file
-# we will use the xarray module to load the data
-# we will use the dask module to load the data
-# we will use the da.concatenate function to concatenate the arrays
-# we will use the da.stack function to stack the arrays
-# we will use the da.mean function to calculate the mean
-# we will use the da.std function to calculate the standard deviation
-# we will use the da.percentile function to calculate the 5th and 95th percentiles
-# we will use the da.percentile function to calculate the 5th and 95th percentiles
+for i in range(0, len(list)):
+    # get the file path
+    file = list[i]
+    #print(file)
 
-for file in list:
     # load the data
     ds = xr.open_dataset(file, chunks={'time': 1})
-    
+
     # extract the runoffarr
-    runoffarr = ds['ro'].values
-    
-    # concatenate the arrays
-    runoffarr = da.concatenate(runoffarr, axis=0)
-    
-    # stack the arrays
-    runoffarr = da.stack(runoffarr, axis=0)
+    runoffarr = ds['ro'].data
+
+    # print the shape of this
+    #print(runoffarr.shape)
+    #print(runoffarr)
+
+    # for each ensemble member we want to add the runoffarr values to an array
+    runoffarr_all_members[i, :, :, :, :] = runoffarr
+
+# print the shape of this
+print(runoffarr_all_members.shape)
+
+# make sure that the values for each ensemble member are the different
+# we will use the da.mean function to calculate the mean
+# print(runoffarr_all_members[1, :, :, :, :].mean().compute())
+# print(runoffarr_all_members[2, :, :, :, :].mean().compute())
+# print(runoffarr_all_members[3, :, :, :, :].mean().compute())
+# print(runoffarr_all_members[4, :, :, :, :].mean().compute())
+# print(runoffarr_all_members[5, :, :, :, :].mean().compute())
+
+# now we want to initialize the variables needed for the damop model
+
+# which takes runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma as inputs
+# and returns inflow, x, w, r, gout as outputs
+
+# initialize the constants
+# these are the same for all ensemble members
+dt = params_Q1a['dt']
+catcharea = params_Q1a['catchment_area']
+kappa = params_Q1a['kappa']
+hmax = params_Q1a['H_max']
+hmin = params_Q1a['H_min']
+wmax = params_Q1a['W_max']
+wmin = params_Q1a['W_min']
+rmax = params_Q1a['R_max']
+sigma = params_Q1a['sigma']
+
+# initiazize dask arrays to store the output
+# for each ensemble member we want to store the inflow, x, w, r, gout
+# inflow is returned as a 2D array
+# with dimensions of (46, 1)
+# same for x, w and r
+# gout is just a single value for each ensemble member
+
+# lets run the damop model for the first ensemble member
+# just to test the output
+
+# define runoffarr for the first ens member
+# runoffarr = runoffarr_all_members[0, :, :, :, :].flatten()
+
+# # print the mean value for this
+# print(runoffarr.mean().compute())
+
+# # initialize empty dask arrays to store output
+# inflow = da.zeros(46,1)
+# x = da.zeros(46,1)
+# w = da.zeros(46,1)
+# r = da.zeros(46,1)
+# gout = da.zeros(1)
+
+# # call the damop function
+# inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+
+# # print the shape of the output of this run
+# print(np.shape(inflow))
+# print(np.shape(x))
+# print(np.shape(w))
+# print(np.shape(r))
+# print(np.shape(gout))
 
 
-# check that the data has loaded correctly
-print(runoffarr)
+# this seems to work - so we will try running the for loop
+# but for 10 ensemble members
 
-# print the values
-print(runoffarr.values)
+# initialize arrays to store the output
+inflow = da.zeros(10, 46, 1)
+x = da.zeros(10, 46, 1)
+w = da.zeros(10, 46, 1)
+r = da.zeros(10, 46, 1)
+gout = da.zeros(10, 1)
+
+for i in range(0, 10):
+    # define the runoff data for the ensemble members
+    runoffarr = runoffarr_all_members[i, :, :, :, :].flatten()
+
+    # call the damop function
+    inflow[i], x[i], w[i], r[i], gout[i] = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+
+# initialize dask arrays to store the output
+# inflow = da.zeros((50, 46, 1))
+# x = da.zeros((50, 46, 1))
+# w = da.zeros((50, 46, 1))
+# r = da.zeros((50, 46, 1))
+
+# # and for gout
+# gout = da.zeros(50, 1)
+
+# # now we want to loop through the ensemble members
+# # when calling the damop_model function
+# # we want to pass in the runoffarr for each ensemble member
+# # and then store the output for each ensemble member
+# for i in range(0, 50):
+#     # get the runoffarr for this ensemble member
+#     runoffarr = runoffarr_all_members[i, :, :, :, :].flatten()
+
+#     # call the damop_model function
+#     inflow[i, :, :], x[i, :, :], w[i, :, :], r[i, :, :], gout[i, :] = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+
+# # now check the shape of the output files
+# print(inflow.shape)
+# print(x.shape)
+# print(w.shape)
+# print(r.shape)
+# print(gout.shape)
+
+
+
 
 # %%
