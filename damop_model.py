@@ -722,45 +722,40 @@ sigma = params_Q1a['sigma']
 # just to test the output
 
 # define runoffarr for the first ens member
-# runoffarr = runoffarr_all_members[0, :, :, :, :].flatten()
+runoffarr = runoffarr_all_members[0, :, :, :, :].flatten()
 
 # # print the mean value for this
 # print(runoffarr.mean().compute())
 
-# # initialize empty dask arrays to store output
+# initialize empty dask arrays to store output
 # inflow = da.zeros(46,1)
 # x = da.zeros(46,1)
 # w = da.zeros(46,1)
 # r = da.zeros(46,1)
 # gout = da.zeros(1)
 
-# # call the damop function
-# inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+# call the damop function
+#inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
 
-# # print the shape of the output of this run
-# print(np.shape(inflow))
-# print(np.shape(x))
-# print(np.shape(w))
-# print(np.shape(r))
-# print(np.shape(gout))
+# # look at the shape of the output
+# print(inflow.shape)
+# print(x.shape)
+# print(w.shape)
+# print(r.shape)
+# print(gout.shape)
 
+# for a single ensemble member we get output in the shapes
+# inflow = (46,)
+# x = (46,)
+# w = (46,)
+# r = (46,)
+# gout = ()
 
-# this seems to work - so we will try running the for loop
-# but for 10 ensemble members
-
-# initialize arrays to store the output
-inflow = da.zeros(10, 46, 1)
-x = da.zeros(10, 46, 1)
-w = da.zeros(10, 46, 1)
-r = da.zeros(10, 46, 1)
-gout = da.zeros(10, 1)
-
-for i in range(0, 10):
-    # define the runoff data for the ensemble members
-    runoffarr = runoffarr_all_members[i, :, :, :, :].flatten()
-
-    # call the damop function
-    inflow[i], x[i], w[i], r[i], gout[i] = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+# we want to store the output for each ensemble member
+# so we will need to create an array to store the output
+# for each ensemble member
+# for inflow, x, w, r we will create an array with dimensions of (50, 46, 1)
+# for gout we will create an array with dimensions of (50, 1)
 
 # initialize dask arrays to store the output
 # inflow = da.zeros((50, 46, 1))
@@ -771,6 +766,126 @@ for i in range(0, 10):
 # # and for gout
 # gout = da.zeros(50, 1)
 
+# create an empty array to store the data for all 50 ensemble members
+# the runoff data has dimensions of: (46, 1, 1, 1)
+# we want to create an array with dimensions of: (50, 46, 1, 1, 1)
+# which stores the ensemble member number and time
+# we will use the dask module to create the array
+# inflow_all_members = da.zeros((3, 46, 1))
+# x_all_members = da.zeros((3, 46, 1))
+# w_all_members = da.zeros((3, 46, 1))
+# r_all_members = da.zeros((3, 46, 1))
+# gout_all_members = da.zeros(3)
+
+# # now we want to loop through the ensemble members
+# # when calling the damop_model function
+# # we want to pass in the runoffarr for each ensemble member
+# # and then store the output for each ensemble member
+# for i in range(0, 2):
+#     # get the runoffarr for this ensemble member
+#     runoffarr = runoffarr_all_members[i, :, :, :, :].flatten()
+
+#     # initialize empty dask arrays to store output
+#     inflow = da.zeros(46,1)
+#     x = da.zeros(46,1)
+#     w = da.zeros(46,1)
+#     r = da.zeros(46,1)
+#     gout = da.zeros(1)
+
+#     # call the damop function
+#     inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+
+#     # store the output for this ensemble member
+#     inflow_all_members[i,:,:] = inflow.reshape(46,1)
+#     x_all_members[i,:,:] = x.reshape(46,1)
+#     w_all_members[i,:,:] = w.reshape(46,1)
+#     r_all_members[i,:,:] = r.reshape(46,1)
+#     gout_all_members[i] = gout
+
+# print the values for the first ensemble member
+# print(inflow_all_members[0,:,:].compute())
+# print(x_all_members[0,:,:].compute())
+# print(w_all_members[0,:,:].compute())
+# print(r_all_members[0,:,:].compute())
+# print(gout_all_members[0].compute())
+
+# # print the values for the second ensemble member
+# print(inflow_all_members[1,:,:].compute())
+# print(x_all_members[1,:,:].compute())
+# print(w_all_members[1,:,:].compute())
+# print(r_all_members[1,:,:].compute())
+# print(gout_all_members[1].compute())
+
+
+# now we've tested the damop model for a two ensemble members
+# we want to run the damop model for all 50 ensemble members
+# and store the output for each ensemble member
+# however, we want to do this in parallel
+# so we will use the dask.distributed module
+# to run the damop model for each ensemble member in parallel
+
+# # initialize the array to store the output for each ensemble member first
+# inflow_all_members = da.zeros((50, 46, 1))
+# x_all_members = da.zeros((50, 46, 1))
+# w_all_members = da.zeros((50, 46, 1))
+# r_all_members = da.zeros((50, 46, 1))
+# gout_all_members = da.zeros(50)
+
+# # now we want to run the damop model for each ensemble member in parallel
+# # we will use the dask.distributed module
+# # to run the damop model for each ensemble member in parallel
+# # we will use the Client() function to create a client
+# # this will create a local cluster
+# # and connect to it
+# # we will then use the client to run the damop model for each ensemble member
+# # in parallel
+# # we will use the client.map() function to run the damop model for each ensemble member
+# # we will pass in the damop_model function
+# # and the runoffarr for each ensemble member
+# # we will also pass in the dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma
+# # as these are constant for all ensemble members
+# # we will then store the output for each ensemble member
+# # in the inflow_all_members, x_all_members, w_all_members, r_all_members, gout_all_members arrays
+# # we will use the client.gather() function to gather the output for each ensemble member
+# # and store it in the inflow_all_members, x_all_members, w_all_members, r_all_members, gout_all_members arrays
+# # we will then use the client.close() function to close the client
+# # and disconnect from the cluster
+# # we will then use the client.restart() function to restart the client
+# # and reconnect to the cluster
+# # we will then use the client.close() function to close the client
+# # and disconnect from the cluster
+
+# # import the dask.distributed module
+# from dask.distributed import Client
+
+# # create a client
+# client = Client()
+
+# # run the damop model for each ensemble member in parallel
+# # and store the output for each ensemble member
+# # in the inflow_all_members, x_all_members, w_all_members, r_all_members, gout_all_members arrays
+# inflow_all_members = client.map(damop_model, runoffarr_all_members, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+# x_all_members = client.map(damop_model, runoffarr_all_members, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+# w_all_members = client.map(damop_model, runoffarr_all_members, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+# r_all_members = client.map(damop_model, runoffarr_all_members, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+# gout_all_members = client.map(damop_model, runoffarr_all_members, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+
+# import dask.array as da
+# from dask.distributed import Client
+# from dask import delayed
+
+# client = Client() # create a Dask client
+
+# # we will use the dask module to create the array
+# inflow_all_members = da.zeros((50, 46, 1))
+# x_all_members = da.zeros((50, 46, 1))
+# w_all_members = da.zeros((50, 46, 1))
+# r_all_members = da.zeros((50, 46, 1))
+# gout_all_members = da.zeros(50)
+
+# # create an empty list to store the delayed objects
+# delayed_objects = []
+
 # # now we want to loop through the ensemble members
 # # when calling the damop_model function
 # # we want to pass in the runoffarr for each ensemble member
@@ -779,16 +894,85 @@ for i in range(0, 10):
 #     # get the runoffarr for this ensemble member
 #     runoffarr = runoffarr_all_members[i, :, :, :, :].flatten()
 
-#     # call the damop_model function
-#     inflow[i, :, :], x[i, :, :], w[i, :, :], r[i, :, :], gout[i, :] = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
 
-# # now check the shape of the output files
-# print(inflow.shape)
-# print(x.shape)
-# print(w.shape)
-# print(r.shape)
-# print(gout.shape)
+#     # initialize empty dask arrays to store output
+#     inflow = da.zeros(46,1)
+#     x = da.zeros(46,1)
+#     w = da.zeros(46,1)
+#     r = da.zeros(46,1)
+#     gout = da.zeros(1)
 
+#     # wrap the damop function with the delayed decorator
+#     # this returns a lazy Dask object that can be parallelized
+#     inflow, x, w, r, gout = delayed(damop_model)(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+
+#     # store the output for this ensemble member
+#     inflow_all_members[i,:,:] = inflow.reshape(46,1)
+#     x_all_members[i,:,:] = x.reshape(46,1)
+#     w_all_members[i,:,:] = w.reshape(46,1)
+#     r_all_members[i,:,:] = r.reshape(46,1)
+#     gout_all_members[i] = gout
+
+#     # append the Dask objects to the list
+#     delayed_objects.append(inflow)
+#     delayed_objects.append(x)
+#     delayed_objects.append(w)
+#     delayed_objects.append(r)
+#     delayed_objects.append(gout)
+
+# # use the compute method to execute the Dask objects in parallel
+# # and return the results as a list
+# results = da.compute(*delayed_objects)
+
+
+# now for the more simple version which should actually run
+# for 50 ensemble members
+
+# we will use the dask module to create the array
+inflow_all_members = da.zeros((50, 46, 1))
+x_all_members = da.zeros((50, 46, 1))
+w_all_members = da.zeros((50, 46, 1))
+r_all_members = da.zeros((50, 46, 1))
+gout_all_members = da.zeros(50)
+
+
+# import the time module
+import time
+
+# now we want to loop through the ensemble members
+# when calling the damop_model function
+# we want to pass in the runoffarr for each ensemble member
+# and then store the output for each ensemble member
+for i in range(0, 50):
+    # get the runoffarr for this ensemble member
+    runoffarr = runoffarr_all_members[i, :, :, :, :].flatten()
+
+    # initialize empty dask arrays to store output
+    inflow = da.zeros(46,1)
+    x = da.zeros(46,1)
+    w = da.zeros(46,1)
+    r = da.zeros(46,1)
+    gout = da.zeros(1)
+
+    # call the damop function
+    # time how long it takes to run
+    start = time.time()
+
+    print('starting damop model for ensemble member ' + str(i))
+
+    inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+    end = time.time()
+
+    print('damop model for ensemble member ' + str(i) + ' took ' + str(end - start) + ' seconds')
+
+    print('estimated time remaining: ' + str((end - start) * (50 - i)) + ' seconds')
+
+    # store the output for this ensemble member
+    inflow_all_members[i,:,:] = inflow.reshape(46,1)
+    x_all_members[i,:,:] = x.reshape(46,1)
+    w_all_members[i,:,:] = w.reshape(46,1)
+    r_all_members[i,:,:] = r.reshape(46,1)
+    gout_all_members[i] = gout
 
 
 
