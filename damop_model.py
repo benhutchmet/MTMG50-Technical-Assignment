@@ -928,51 +928,67 @@ runoffarr = runoffarr_all_members[0, :, :, :, :].flatten()
 # now for the more simple version which should actually run
 # for 50 ensemble members
 
-# we will use the dask module to create the array
-inflow_all_members = da.zeros((50, 46, 1))
-x_all_members = da.zeros((50, 46, 1))
-w_all_members = da.zeros((50, 46, 1))
-r_all_members = da.zeros((50, 46, 1))
-gout_all_members = da.zeros(50)
+# # we will use the dask module to create the array
+# inflow_all_members = da.zeros((50, 46, 1))
+# x_all_members = da.zeros((50, 46, 1))
+# w_all_members = da.zeros((50, 46, 1))
+# r_all_members = da.zeros((50, 46, 1))
+# gout_all_members = da.zeros(50)
 
 
-# import the time module
-import time
+# # import the time module
+# import time
 
-# now we want to loop through the ensemble members
-# when calling the damop_model function
-# we want to pass in the runoffarr for each ensemble member
-# and then store the output for each ensemble member
+# # now we want to loop through the ensemble members
+# # when calling the damop_model function
+# # we want to pass in the runoffarr for each ensemble member
+# # and then store the output for each ensemble member
+# for i in range(0, 50):
+#     # get the runoffarr for this ensemble member
+#     runoffarr = runoffarr_all_members[i, :, :, :, :].flatten()
+
+#     # initialize empty dask arrays to store output
+#     inflow = da.zeros(46,1)
+#     x = da.zeros(46,1)
+#     w = da.zeros(46,1)
+#     r = da.zeros(46,1)
+#     gout = da.zeros(1)
+
+#     # call the damop function
+#     # time how long it takes to run
+#     start = time.time()
+
+#     print('starting damop model for ensemble member ' + str(i))
+
+#     inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+#     end = time.time()
+
+#     print('damop model for ensemble member ' + str(i) + ' took ' + str(end - start) + ' seconds')
+
+#     print('estimated time remaining: ' + str((end - start) * (50 - i)) + ' seconds')
+
+#     # store the output for this ensemble member
+#     inflow_all_members[i,:,:] = inflow.reshape(46,1)
+#     x_all_members[i,:,:] = x.reshape(46,1)
+#     w_all_members[i,:,:] = w.reshape(46,1)
+#     r_all_members[i,:,:] = r.reshape(46,1)
+#     gout_all_members[i] = gout
+
+# now this had run we want to save the output to a file
+# for inflow_all_members, x_all_members, w_all_members, r_all_members, gout_all_members
+
+# set up a plot to show the results
+# for inflow_all_members, x_all_members, w_all_members, r_all_members, gout_all_members
+
+# plot the results for inflo_all_members
+# set up the figure
+fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+
+# plot the results using a for loop to loop through the ensemble members
 for i in range(0, 50):
-    # get the runoffarr for this ensemble member
-    runoffarr = runoffarr_all_members[i, :, :, :, :].flatten()
+    ax.plot(inflow_all_members[i, :, 0])
 
-    # initialize empty dask arrays to store output
-    inflow = da.zeros(46,1)
-    x = da.zeros(46,1)
-    w = da.zeros(46,1)
-    r = da.zeros(46,1)
-    gout = da.zeros(1)
-
-    # call the damop function
-    # time how long it takes to run
-    start = time.time()
-
-    print('starting damop model for ensemble member ' + str(i))
-
-    inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
-    end = time.time()
-
-    print('damop model for ensemble member ' + str(i) + ' took ' + str(end - start) + ' seconds')
-
-    print('estimated time remaining: ' + str((end - start) * (50 - i)) + ' seconds')
-
-    # store the output for this ensemble member
-    inflow_all_members[i,:,:] = inflow.reshape(46,1)
-    x_all_members[i,:,:] = x.reshape(46,1)
-    w_all_members[i,:,:] = w.reshape(46,1)
-    r_all_members[i,:,:] = r.reshape(46,1)
-    gout_all_members[i] = gout
+# add a legend
 
 
 
