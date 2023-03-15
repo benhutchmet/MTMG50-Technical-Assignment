@@ -298,14 +298,84 @@ The most noticeable difference between the two datasets is the difference in int
 
 \subsubsection*{Q4 - Calibration of S2S data}
 
-To calibrate the S2S data, we use the ERA5 data as a reference to adjust the variance of the S2S data. This calibration is performed according to equation (\ref{calibration}), without adjustment of the mean using $c_0$. Once again, the statistics of the two datasets are compared by using a PDF with the mean and interquartile range, in figure \ref*{Q4-comparison-of-calibrated-data}. \\
+To calibrate the S2S data, we use the ERA5 data as a reference to adjust the variance of the S2S data. This calibration is performed according to equation (\ref{calibration}), without adjustment of the mean using $c_0$. Once again, the statistics of the two datasets are compared by using a PDF with the mean and interquartile range, in figure \ref*{Q4-comparison-of-calibrated-data}.\\
+
+% set up a single figure for the PDF comparison of calibrated S2S
+\begin{figure}
+\centering
+\scalebox{0.5}{\includegraphics{runoff_distribution_ERA5vsECMWFS2S_calibrated.png}}
+\label{fig:Q4-comparison-of-calibrated-data}
+\caption{Comparison of the probability density function of ERA5 and calibrated S2S data. Mean and standard deviation of the two datasets are shown. S2S data are calibrated using the variance calibration from equation \ref*{calibration}.}
+\end{figure}
+
+Adjusting the variance of the S2S data results in a closer match to the ERA5 data, with the mean and interquartile range of the two datasets aligning more closely. Although the calibrated S2S data still shows a bimodal distribution, the two PDFs are more similar than the uncalibrated S2S data. Therefore, this calibration is used for the preperation of the ensemble runs for question 5.\\
+
+\subsubsection*{Q5 - S2S ensemble runs}
+
+To assess the performance of the S2S forecast data, we run the dam optimization model for each ensemble member (50 members) from the June 21 forecast and look at the variability in the results. The results of the ensemble runs are shown in figure \ref*{fig:Q5-ensemble-runs}.
+
+% set up the figure for the ensemble runs
+% top left will be a plot of the combined reservoir head for all ensemble % members, with the ensemble mean as well as the ERA5 data
+% top right will be a plot of the combined inflow for all ensemble % members, with the ensemble mean as well as the ERA5 data
+% bottom left will be a plot of the combined turbine flow for all ensemble % members, with the ensemble mean as well as the ERA5 data
+% bottom right will be a plot of the combined relief flow for all ensemble % members, with the ensemble mean as well as the ERA5 data
+
+% \begin{figure}
+% \centering
+% \subfigure[Reservoir head]{\includegraphics[width=0.45\textwidth]{ensemble_runs_reservoir_head.png}}
+% \subfigure[Inflow]{\includegraphics[width=0.45\textwidth]{ensemble_runs_inflow.png}}
+% \subfigure[Turbine flow]{\includegraphics[width=0.45\textwidth]{ensemble_runs_turbine_flow.png}}
+% \subfigure[Relief flow]{\includegraphics[width=0.45\textwidth]{ensemble_runs_relief_flow.png}}
+% \label{fig:Q5-ensemble-runs}
+% \caption{Results of the ensemble runs for the June 21 forecast. Individual ensemble members are shown by the faint black lines, the ensemble mean is shown as a solid line and the ERA5 data is shown as a dashed line.}
+% \end{figure}
+
+Generally, it appears that the ensemble members are\dots
+
+\subsubsection*{Q6 - Extending the optimization window}
+
+To assess whether the optimization model can be used operationally with S2S forecast data, we extend the optimization window to include analysis from the months leading up to the forecast. We assess the value of this by comparing against a result that uses analysis for the same period, as illustrated in figure \ref*{fig:diagram-optimization-window}.\\
+
+% insert the figure containing the diagram of the optimization window
+% \begin{figure}
+% \centering
+% \scalebox{0.5}{\includegraphics{optimization_window.png}}
+% \label{fig:diagram-optimization-window}
+% \caption{Diagram showing how the optimization window is extended by including analysis data from the months leading up to the forecast.}
+% \end{figure}
+
+% insert the figure containing the results of the optimization window experiment
+% this will be two figures side by side
+% the left figure will be the results of the optimization window experiment
+% the right figure will be the results of the analysis experiment
+
+% \begin{figure}
+% \centering
+% \subfigure[Optimization window]{\includegraphics[width=0.45\textwidth]{optimization_window_experiment.png}}
+% \subfigure[Analysis]{\includegraphics[width=0.45\textwidth]{analysis_experiment.png}}
+% \label{fig:Q6-optimization-window}
+% \caption{Run of the dam optimization model using an extended optimization window for the ensemble mean S2S forecast from June 21 2018 (left) and using analysis data for the same period (right).}
 
 
+% change this part once you have results
+Figure \ref*{Q6-optimization-window} shows that the results of the optimization model are similar for the two experiments. This suggests that the optimization model can be used operationally with S2S forecast data, as long as the optimization window is extended to include analysis data from the months leading up to the forecast.\\
+
+% in what ways could the S2S forecasts of runoff be useful for the optimization of hydropower operations by controlling the flow rate
+% which is the variable the operator can control (which the damop model returns)
+% how could this be helpful in advance of major precipitation events
+% or during events with really high rainfall accumulation
 
 \section*{Discussion}
 
+% present the limitations of you approach and calculations
+
+One of the limitations of this approach was the use of a limited range of S2S forecast data. These forecasts were only available for June-August 2017-2019, while the S2S data covered the full period from June 2017 to August 2019. The comparison of the statistics of the two datasets, particularly the uncalibrated case, showed substantial differences in the distributions between the two datasets. Comparing the distribution of the runoff data for the same time period could help to improve the calibration of the S2S data onto the ERA5 data.\\
+
+This approach also did not account for the varying skill of the S2S forecasts during overlapping time periods. Weighting each forecast equally using a mean, as was done in this approach, could undervalue the skill of the more recently initialized forecasts. Future studies could improve on this by introducing a weighted mean, whereby more skillful forecasts are given a higher weighting.\\
+
 \section*{Summary}
 
+Overall, this approach showed that the S2S forecast data can be used to run the dam optimization model operationally. The results of the ensemble runs showed that the S2S forecast data can be used to generate a range of possible outcomes for the dam operation. The results of the optimization window experiment showed that the optimization model can be used operationally with S2S forecast data, as long as the optimization window is extended to include analysis data from the months leading up to the forecast.\\
 
 
 % references don't seem to be working - sort this out later
