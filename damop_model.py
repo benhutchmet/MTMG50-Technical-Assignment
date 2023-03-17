@@ -1047,6 +1047,150 @@ for i in range(0, 50):
     r_all_members[i,:,:] = r.reshape(46,1)
     gout_all_members[i] = gout
 
-# create a plot for all ensemble members for inflow
+# %%
+
+# define a function which will plot all of the different outputs
+def plotting_ensemble(inflow_all_members, x_all_members, w_all_members, r_all_members, gout_all_members):
+   
+    # set up the time axis
+    # between 2018-06-22 and 2018-08-06 inclusive
+    # at daily intervals
+    time = pd.date_range('2018-06-22', '2018-08-06', freq='D')
+
+    # first plot the inflow_all_members
+    # inflow is in m3/s and is on the y axis
+    # time is on the x axis
+    # set up the figure
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+
+    # plot the results using a for loop to loop through the ensemble members
+    for i in range(0, 50):
+        ax.plot(time, inflow_all_members[i, :, 0], color='blue', alpha=0.2)
+
+    # surrogate for legend
+    ax.plot(time, inflow_all_members[0, :, 0], color='blue', alpha=0.2, label='ensemble members')
+    
+    # set the y axis label
+    ax.set_ylabel('Inflow (m3/s)')
+    # set the y axis limits
+    # between the start date and the end date
+    ax.set_ylim([0, 0.0005])
+
+    # calculate the ensemble mean and plot this
+    inflow_mean = inflow_all_members.mean(axis=0)
+    ax.plot(time, inflow_mean, color='black', linewidth=3, linestyle='--', label = 'ensemble mean')
+
+    # set a title
+    ax.set_title('Inflow from dam optimisation model using 50 ensemble members from ECMWF 2018-06-21 subseasonal forecast')
+
+    # add a legend
+    ax.legend()
+
+    # save the plot
+    # fig.savefig('inflow_ensemble.png', dpi=300) 
+
+    # plot the results for x_all_members
+    # set up the figure
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+
+    # plot the results using a for loop to loop through the ensemble members
+    for i in range(0, 50):
+        ax.plot(time, x_all_members[i, :, 0], color='blue', alpha=0.2)
+
+    # set the y axis label
+    ax.set_ylabel('Water head (m)')
+    # set the y lims
+    ax.set_ylim(0, 50)
+
+    # calculate the ensemble mean and plot this
+    x_mean = x_all_members.mean(axis=0)
+    ax.plot(time, x_mean, color='black', linewidth=3, label = 'ensemble mean')
+
+    # set a title
+    ax.set_title('Water head at dam from dam optimisation model using 50 ensemble members from ECMWF 2018-06-21 subseasonal forecast')
+
+    # save the plot
+    # fig.savefig('x_ensemble.png', dpi=300)
+
+    # plot the results for w_all_members
+    # set up the figure
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+
+    # plot the results using a for loop to loop through the ensemble members
+    for i in range(0, 50):
+        ax.plot(time, w_all_members[i, :, 0], color='blue', alpha=0.2)
+
+    # set the y axis label
+    ax.set_ylabel('Turbine flow (m3/s)')
+    # set the y lims
+    ax.set_ylim(0, 300)
+
+    # calculate the ensemble mean and plot this
+    w_mean = w_all_members.mean(axis=0)
+    ax.plot(time, w_mean, color='black', linewidth=3, label = 'ensemble mean')
+
+    # set a title
+    ax.set_title('Turbine flow from dam optimisation model using 50 ensemble members from ECMWF 2018-06-21 subseasonal forecast')
+
+    # save the plot
+    # fig.savefig('w_ensemble.png', dpi=300)
+
+    # plot the results for r_all_members
+    # set up the figure
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+
+    # plot the results using a for loop to loop through the ensemble members
+    for i in range(0, 50):
+        ax.plot(time, r_all_members[i, :, 0], color='blue', alpha=0.2)
+
+    # set the y axis label
+    ax.set_ylabel('Relief flow (m3/s)')
+    # set the y lims
+    ax.set_ylim(0, 300)
+
+    # calculate the ensemble mean and plot this
+    r_mean = r_all_members.mean(axis=0)
+    ax.plot(time, r_mean, color='black', linewidth=3)
+
+    # set a title
+    ax.set_title('Relief flow from dam optimisation model using 50 ensemble members from ECMWF 2018-06-21 subseasonal forecast')
+
+    # save the plot
+    # fig.savefig('r_ensemble.png', dpi=300)
+
+    # plot the results for gout_all_members
+    # as a bar chart
+    # set up the figure
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+
+    # plot the values of gout for each ensemble member
+    # as a bar chart
+    ax.bar(np.arange(1, 51), gout_all_members)
+
+    # set the y axis label
+    ax.set_ylabel('Time integrated optimimum generation (MW-days)')
+
+    # set the x axis label
+    ax.set_xlabel('Ensemble member')
+
+    # calculate the ensemble mean and plot this as a horizontal line
+    gout_mean = gout_all_members.mean()
+    ax.axhline(y=gout_mean, color='black', linewidth=3)
+
+    # set a title
+    ax.set_title('Time integrated optimimum generation from dam optimisation model using 50 ensemble members from ECMWF 2018-06-21 subseasonal forecast')
+
+    # save the plot
+    # fig.savefig('gout_ensemble.png', dpi=300)
+
+# call the function to plot the results
+plotting_ensemble(inflow_all_members, x_all_members, w_all_members, r_all_members, gout_all_members)
+
+
+# %%
+
+# print the gout values for each ensemble member
+print(gout_all_members.mean())
+
 
 # %%

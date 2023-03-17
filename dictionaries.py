@@ -91,7 +91,18 @@ params_Q2_large_range = params_Q2_tau | {'H_max': 0.8*161, 'H_min': 0.1*161, 'fi
 
 params_Q2_small_range = params_Q2_tau | {'H_max': 0.3*161, 'H_min': 0.4*161, 'fig_name': '2017-06-01-2017-09-30_optimization_Q2_small_range.png'}
 
+# now we want to define a dictionary for Q5
+# for comparison with the ensemble runs
+# we will use the default parameters for Q1a for this
 
-print(params_Q2_small_range)
-print(params_Q2_large_range)
+params_Q5 = params_Q1a | {'start_date': '2018-06-22', 'end_date': '2018-08-06', 'fig_name': '2017-06-01-2017-09-30_optimization_Q5.png', 'task': 'Q5'}
+
+# now we define the dictionary for Q6
+# first do the easy one, for the analysis only damop run
+params_Q6_reanalysis = params_Q1a | {'start_date': '2018-03-01', 'end_date': '2018-08-06', 'fig_name': '2018-03-01-2018-08-06_optimization_Q6_reanalysis.png', 'task': 'Q6'
+                                     }
+
+# now for the extended optimization window run
+params_Q6_reanalysis_subseasonal = params_Q1a | {'start_date': '2018-03-01', 'end_date': '2018-06-21', 'fig_name': '2018-03-01-2018-08-06_optimization_Q6_reanalysis_subseasonal.png', 'task': 'Q6'}
+
       # %%
