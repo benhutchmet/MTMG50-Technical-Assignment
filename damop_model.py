@@ -19,14 +19,13 @@ import numpy as np
 import datetime
 from datetime import date
 from datetime import timedelta
+import dask
 
 # import from dictionary
 from dictionaries import *
 
 # check the data
 #print(params_Q1a)
-
-
 
 
 def damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma):
@@ -928,16 +927,16 @@ runoffarr = runoffarr_all_members[0, :, :, :, :].flatten()
 # now for the more simple version which should actually run
 # for 50 ensemble members
 
-# # we will use the dask module to create the array
-# inflow_all_members = da.zeros((50, 46, 1))
-# x_all_members = da.zeros((50, 46, 1))
-# w_all_members = da.zeros((50, 46, 1))
-# r_all_members = da.zeros((50, 46, 1))
-# gout_all_members = da.zeros(50)
+# we will use the dask module to create the array
+inflow_all_members = da.zeros((50, 46, 1))
+x_all_members = da.zeros((50, 46, 1))
+w_all_members = da.zeros((50, 46, 1))
+r_all_members = da.zeros((50, 46, 1))
+gout_all_members = da.zeros(50)
 
 
 # # import the time module
-# import time
+import time
 
 # # now we want to loop through the ensemble members
 # # when calling the damop_model function
@@ -982,14 +981,72 @@ runoffarr = runoffarr_all_members[0, :, :, :, :].flatten()
 
 # plot the results for inflo_all_members
 # set up the figure
-fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+# fig, ax = plt.subplots(1, 1, figsize=(10, 5))
 
-# plot the results using a for loop to loop through the ensemble members
+# # plot the results using a for loop to loop through the ensemble members
+# for i in range(0, 50):
+#     ax.plot(inflow_all_members[i, :, 0])
+
+# # define the function which runs the damop model
+# # for the 50 member ensemble
+# @dask.delayed
+# def damop_model_ens(runoffarr):
+#     # call the damop function
+#     inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+
+#     # return the output
+#     return inflow, x, w, r, gout
+
+# # create a list of the inputs
+# # for the damop_model_ens function
+# inputs = [runoffarr_all_members[i, :, :, :, :].flatten() for i in range(0, 50)]
+
+# # apply the function to each input in parallel
+# results = [damop_model_ens(i) for i in inputs]
+
+# # get the values from teh damop_model_ens function
+# # for each ensemble member
+# # and reshape the output
+# # to the correct shape
+# inflow_all_members = da.stack([i[0].reshape(46,1) for i in results])
+# x_all_members = da.stack([i[1].reshape(46,1) for i in results])
+# w_all_members = da.stack([i[2].reshape(46,1) for i in results])
+# r_all_members = da.stack([i[3].reshape(46,1) for i in results])
+# gout_all_members = da.stack([i[4] for i in results])
+
+# # now this had run we want to save the output to a file
+# # for inflow_all_members, x_all_members, w_all_members, r_all_members, gout_all_members
+# inflow_all_members, x_all_members, w_all_members, r_all_members, gout_all_members = dask.compute(inflow_all_members, x_all_members, w_all_members, r_all_members, gout_all_members)
+
+# try this again
+
+# initializse the dask delayed function
+@dask.delayed
+def damop_model_delayed(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma):
+    inflow, x, w, r, gout = damop_model(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma)
+    return inflow, x, w, r, gout
+
 for i in range(0, 50):
-    ax.plot(inflow_all_members[i, :, 0])
+    runoffarr = runoffarr_all_members[i, :, :, :, :].flatten()
 
-# add a legend
+    start = time.time()
 
+    print('starting damop model for ensemble member ' + str(i))
 
+    inflow, x, w, r, gout = damop_model_delayed(runoffarr, dt, catcharea, kappa, hmax, hmin, wmax, wmin, rmax, sigma).compute()
+
+    end = time.time()
+
+    print('damop model for ensemble member ' + str(i) + ' took ' + str(end - start) + ' seconds')
+
+    print('estimated time remaining: ' + str((end - start) * (50 - i)) + ' seconds')
+
+    inflow_all_members[i,:,:] = inflow.reshape(46,1)
+    x_all_members[i,:,:] = x.reshape(46,1)
+    w_all_members[i,:,:] = w.reshape(46,1)
+    r_all_members[i,:,:] = r.reshape(46,1)
+    gout_all_members[i] = gout
+
+# create a plot for all ensemble members for inflow
 
 # %%
