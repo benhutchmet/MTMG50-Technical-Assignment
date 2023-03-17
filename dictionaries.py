@@ -91,4 +91,7 @@ params_Q2_large_range = params_Q2_tau | {'H_max': 0.8*161, 'H_min': 0.1*161, 'fi
 
 params_Q2_small_range = params_Q2_tau | {'H_max': 0.3*161, 'H_min': 0.4*161, 'fig_name': '2017-06-01-2017-09-30_optimization_Q2_small_range.png'}
 
-# %%
+
+print(params_Q2_small_range)
+print(params_Q2_large_range)
+      # %%
